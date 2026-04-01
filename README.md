@@ -72,9 +72,9 @@ https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=shari
 
 ### 📅 Semana 1
 
-* [ ] Definição do projeto
-* [ ] Criação do repositório no GitHub
-* [ ] Escrita inicial do README
+* [x] Definição do projeto
+* [x] Criação do repositório no GitHub
+* [x] Escrita inicial do README
 
 ### 📅 Semana 2
 

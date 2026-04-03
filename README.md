@@ -1,5 +1,3 @@
-# FinanceTracker
-
 # 💰 Finance Tracker
 
 ## 📱 Sobre o app
@@ -52,16 +50,36 @@ As principais telas do aplicativo incluem:
 
 O aplicativo utilizará **persistência local com SQLite**, garantindo funcionamento offline.
 
-### 📊 Estrutura da tabela: `transactions`
+### 📊 Estrutura das tabelas
 
-| Campo    | Tipo    | Descrição                   |
-| -------- | ------- | --------------------------- |
-| id       | INTEGER | Identificador único         |
-| title    | TEXT    | Descrição da transação      |
-| amount   | REAL    | Valor da transação          |
-| type     | TEXT    | Tipo: `income` ou `expense` |
-| category | TEXT    | Categoria da transação      |
-| date     | TEXT    | Data da transação           |
+#### 🔹 Tabela: `categories`
+
+| Campo      | Tipo    | Descrição           |
+| ---------- | ------- | ------------------- |
+| id         | INTEGER | Identificador único |
+| name       | TEXT    | Nome da categoria   |
+| created_at | TEXT    | Data de criação     |
+
+---
+
+#### 🔹 Tabela: `transactions`
+
+| Campo       | Tipo    | Descrição                           |
+| ----------- | ------- | ----------------------------------- |
+| id          | INTEGER | Identificador único                 |
+| title       | TEXT    | Descrição da transação              |
+| amount      | REAL    | Valor da transação                  |
+| type        | TEXT    | Tipo: `income` ou `expense`         |
+| category_id | INTEGER | Chave estrangeira para `categories` |
+| date        | TEXT    | Data da transação                   |
+| created_at  | TEXT    | Data de criação                     |
+
+---
+
+### 🔗 Relacionamento
+
+* Uma **categoria** pode estar associada a várias **transações**
+* Cada **transação** pertence a uma única **categoria**
 
 👉 Modelagem completa disponível em:
 https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=sharing
@@ -78,57 +96,49 @@ https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=shari
 
 ### 📅 Semana 2
 
-* [ ] Criação do projeto com Expo
-* [ ] Configuração do ambiente
-* [ ] Estrutura inicial de pastas
+* [ ] Criação das telas base
 
 ### 📅 Semana 3
-
-* [ ] Configuração do Expo Router
-* [ ] Criação das telas base
-* [ ] Navegação entre telas
-
-### 📅 Semana 4
 
 * [ ] Criação de componentes reutilizáveis (Button, Input)
 * [ ] Organização do projeto
 
-### 📅 Semana 5
+### 📅 Semana 4
 
 * [ ] Implementação da tela de cadastro de transação
 * [ ] Validação de formulário
 
-### 📅 Semana 6
+### 📅 Semana 5
 
 * [ ] Implementação do estado global (Zustand)
 * [ ] Gerenciamento das transações em memória
 
-### 📅 Semana 7
+### 📅 Semana 6
 
 * [ ] Integração com SQLite
 * [ ] Persistência de dados
 
-### 📅 Semana 8
+### 📅 Semana 7
 
 * [ ] Listagem de transações na tela inicial
 * [ ] Cálculo de saldo total
 
-### 📅 Semana 9
+### 📅 Semana 8
 
 * [ ] Edição e exclusão de transações
 * [ ] Melhorias na UX
 
-### 📅 Semana 10
+### 📅 Semana 9
 
 * [ ] Filtros por categoria e data
 * [ ] Resumo financeiro
 
-### 📅 Semana 11
+### 📅 Semana 10
 
 * [ ] Implementação de gráficos
 * [ ] Estilização com NativeWind/UI Kit
 
-### 📅 Semana 12
+### 📅 Semana 11
 
 * [ ] Testes finais
 * [ ] Ajustes gerais

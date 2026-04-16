@@ -10,24 +10,24 @@ O aplicativo busca fornecer uma visão clara da situação financeira do usuári
 
 #### 🔹 Funcionalidades básicas
 
-* [ ] Adicionar receita
-* [ ] Adicionar despesa
-* [ ] Listar transações
-* [ ] Editar transações
-* [ ] Excluir transações
-* [ ] Exibir saldo total
+- [ ] Adicionar receita
+- [ ] Adicionar despesa
+- [ ] Listar transações
+- [ ] Editar transações
+- [ ] Excluir transações
+- [ ] Exibir saldo total
 
 #### 🔹 Funcionalidades intermediárias
 
-* [ ] Filtrar transações por categoria
-* [ ] Filtrar por período (data)
-* [ ] Exibir resumo financeiro (total de receitas vs despesas)
+- [ ] Filtrar transações por categoria
+- [ ] Filtrar por período (data)
+- [ ] Exibir resumo financeiro (total de receitas vs despesas)
 
 #### 🔹 Funcionalidades extras - Implementações futuras
 
-* [ ] Gráfico de gastos
-* [ ] Categorias personalizadas
-* [ ] Modo escuro
+- [ ] Gráfico de gastos
+- [ ] Categorias personalizadas
+- [ ] Modo escuro
 
 ---
 
@@ -39,10 +39,10 @@ Os protótipos das telas foram desenvolvidos no Figma e podem ser acessados atra
 
 As principais telas do aplicativo incluem:
 
-* Tela inicial (resumo + lista de transações)
-* Tela de cadastro de transação
-* Tela de edição/detalhes de transação
-* (Opcional) Tela de gráficos
+- Tela inicial (resumo + lista de transações)
+- Tela de cadastro de transação
+- Tela de edição/detalhes de transação
+- (Opcional) Tela de gráficos
 
 ---
 
@@ -78,8 +78,8 @@ O aplicativo utilizará **persistência local com SQLite**, garantindo funcionam
 
 ### 🔗 Relacionamento
 
-* Uma **categoria** pode estar associada a várias **transações**
-* Cada **transação** pertence a uma única **categoria**
+- Uma **categoria** pode estar associada a várias **transações**
+- Cada **transação** pertence a uma única **categoria**
 
 👉 Modelagem completa disponível em:
 https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=sharing
@@ -90,70 +90,70 @@ https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=shari
 
 ### 📅 Semana 1
 
-* [x] Definição do projeto
-* [x] Criação do repositório no GitHub
-* [x] Escrita inicial do README
+- [x] Definição do projeto
+- [x] Criação do repositório no GitHub
+- [x] Escrita inicial do README
 
 ### 📅 Semana 2
 
-* [ ] Criação das telas base
+- [x] Criação das telas base
 
 ### 📅 Semana 3
 
-* [ ] Criação de componentes reutilizáveis (Button, Input)
-* [ ] Organização do projeto
+- [ ] Criação de componentes reutilizáveis (Button, Input)
+- [ ] Organização do projeto
 
 ### 📅 Semana 4
 
-* [ ] Implementação da tela de cadastro de transação
-* [ ] Validação de formulário
+- [ ] Implementação da tela de cadastro de transação
+- [ ] Validação de formulário
 
 ### 📅 Semana 5
 
-* [ ] Implementação do estado global (Zustand)
-* [ ] Gerenciamento das transações em memória
+- [ ] Implementação do estado global (Zustand)
+- [ ] Gerenciamento das transações em memória
 
 ### 📅 Semana 6
 
-* [ ] Integração com SQLite
-* [ ] Persistência de dados
+- [ ] Integração com SQLite
+- [ ] Persistência de dados
 
 ### 📅 Semana 7
 
-* [ ] Listagem de transações na tela inicial
-* [ ] Cálculo de saldo total
+- [ ] Listagem de transações na tela inicial
+- [ ] Cálculo de saldo total
 
 ### 📅 Semana 8
 
-* [ ] Edição e exclusão de transações
-* [ ] Melhorias na UX
+- [ ] Edição e exclusão de transações
+- [ ] Melhorias na UX
 
 ### 📅 Semana 9
 
-* [ ] Filtros por categoria e data
-* [ ] Resumo financeiro
+- [ ] Filtros por categoria e data
+- [ ] Resumo financeiro
 
 ### 📅 Semana 10
 
-* [ ] Implementação de gráficos
-* [ ] Estilização com NativeWind/UI Kit
+- [ ] Implementação de gráficos
+- [ ] Estilização com NativeWind/UI Kit
 
 ### 📅 Semana 11
 
-* [ ] Testes finais
-* [ ] Ajustes gerais
-* [ ] Build com EAS
-* [ ] Preparação da apresentação
+- [ ] Testes finais
+- [ ] Ajustes gerais
+- [ ] Build com EAS
+- [ ] Preparação da apresentação
 
 ---
 
 ## 🛠️ Tecnologias utilizadas
 
-* React Native (Expo)
-* Expo Router
-* NativeWind
-* SQLite
-* Zustand (gerenciamento de estado global)
+- React Native (Expo)
+- Expo Router
+- NativeWind
+- SQLite
+- Zustand (gerenciamento de estado global)
 
 ---
 
@@ -162,6 +162,87 @@ https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=shari
 👉 https://github.com/joao-sol/FinanceTracker
 
 ---
+
+## ▶️ Como rodar na sua máquina
+
+Siga os passos abaixo para executar o projeto localmente:
+
+### 📌 Pré-requisitos
+
+Antes de começar, você precisa ter instalado:
+
+- Node.js (versão LTS recomendada)
+- Yarn ou NPM
+- Expo CLI (opcional, pois usamos via `npx`)
+- Aplicativo **Expo Go** no celular (Android/iOS)
+
+---
+
+### 📥 Clonando o repositório
+
+```bash
+git clone https://github.com/joao-sol/FinanceTracker
+cd finance-tracker
+```
+
+---
+
+### 📦 Instalando as dependências
+
+Se estiver usando Yarn:
+
+```bash
+yarn
+```
+
+Ou com NPM:
+
+```bash
+npm install
+```
+
+---
+
+### 🚀 Executando o projeto
+
+```bash
+npx expo start
+```
+
+---
+
+### 📱 Rodando no celular
+
+1. Instale o app **Expo Go**
+2. Escaneie o QR Code exibido no terminal ou navegador
+3. O app será aberto automaticamente no seu dispositivo
+
+---
+
+### 💻 Rodando no emulador (opcional)
+
+- Android:
+
+```bash
+a
+```
+
+- iOS (apenas Mac):
+
+```bash
+i
+```
+
+---
+
+### ⚠️ Observações
+
+- Certifique-se de que o celular e o computador estão na mesma rede
+- Caso ocorra algum erro, tente limpar o cache:
+
+```bash
+npx expo start -c
+```
 
 ## 📌 Observações
 

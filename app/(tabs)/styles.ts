@@ -44,13 +44,63 @@ export const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#0F172A",
   },
+  incomeText: {
+    color: "#6CC24A",
+  },
+  expenseText: {
+    color: "#F25C2A",
+  },
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 24,
+    paddingTop: 20,
+  },
+  searchInput: {
+    height: 52,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    fontSize: 15,
+    color: "#0F172A",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    marginBottom: 18,
+  },
+  typeFilterSection: {
+    marginBottom: 18,
+  },
+
+  typeFilterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+
+  categoryFilterSection: {
+    marginBottom: 26,
+  },
+
+  categoryFilterContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  pickerWrapper: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    overflow: "hidden",
+    justifyContent: "center",
+    height: 52,
+  },
+  picker: {
+    color: "#0F172A",
   },
   sectionHeader: {
     marginBottom: 18,
+    marginTop: 4,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -65,6 +115,26 @@ export const styles = StyleSheet.create({
     color: "#64748B",
   },
   listContent: {
-    paddingBottom: 24,
+    paddingBottom: 100,
+  },
+  emptyState: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    padding: 20,
+    alignItems: "center",
+  },
+  emptyStateTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#0F172A",
+    marginBottom: 8,
+  },
+  emptyStateText: {
+    fontSize: 14,
+    color: "#64748B",
+    textAlign: "center",
+    lineHeight: 20,
   },
 });

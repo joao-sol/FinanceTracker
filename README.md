@@ -182,6 +182,9 @@ Desde o último checkpoint, foram aplicados recursos estudados nos módulos ante
 - **Reutilização de componentes:** componentes personalizados criados na pasta `components` foram utilizados nas telas do aplicativo, evitando repetição de código e mantendo consistência visual.
 - **Composição de tela com dados dinâmicos:** a tela inicial reutiliza o componente `TransactionCard` para renderizar diferentes transações a partir dos dados armazenados na store.
 
+- **Vídeo de demonstração da navegação:**
+  https://youtube.com/shorts/msovfQOObo8
+
 ## 📦 Repositório
 
 👉 https://github.com/joao-sol/FinanceTracker

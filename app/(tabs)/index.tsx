@@ -8,7 +8,7 @@ import { TransactionCard } from "@/components/transactionCard";
 import { useCategoryStore } from "@/store/useCategoryStore";
 import { useTransactionStore } from "@/store/useTransactionStore";
 
-import { styles } from "./styles";
+import { styles } from "./_styles";
 
 type TypeFilter = "all" | "income" | "expense";
 

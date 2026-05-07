@@ -100,18 +100,18 @@ https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=shari
 
 ### 📅 Semana 3
 
-- [ ] Criação de componentes reutilizáveis (Button, Input)
-- [ ] Organização do projeto
+- [x] Criação de componentes reutilizáveis (Button, Input)
+- [x] Organização do projeto
 
 ### 📅 Semana 4
 
-- [ ] Implementação da tela de cadastro de transação
+- [x] Implementação da tela de cadastro de transação
 - [ ] Validação de formulário
 
 ### 📅 Semana 5
 
-- [ ] Implementação do estado global (Zustand)
-- [ ] Gerenciamento das transações em memória
+- [x] Implementação do estado global (Zustand)
+- [x] Gerenciamento das transações em memória
 
 ### 📅 Semana 6
 
@@ -120,8 +120,8 @@ https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=shari
 
 ### 📅 Semana 7
 
-- [ ] Listagem de transações na tela inicial
-- [ ] Cálculo de saldo total
+- [x] Listagem de transações na tela inicial
+- [x] Cálculo de saldo total
 
 ### 📅 Semana 8
 
@@ -130,12 +130,12 @@ https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=shari
 
 ### 📅 Semana 9
 
-- [ ] Filtros por categoria e data
-- [ ] Resumo financeiro
+- [x] Filtros por categoria e data
+- [x] Resumo financeiro
 
 ### 📅 Semana 10
 
-- [ ] Implementação de gráficos
+- [x] Implementação de gráficos
 - [ ] Estilização com NativeWind/UI Kit
 
 ### 📅 Semana 11

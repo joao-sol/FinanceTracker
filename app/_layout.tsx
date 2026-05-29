@@ -39,6 +39,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="add/index" />
+        <Stack.Screen name="categories/index" />
       </Stack>
     </ThemeProvider>
   );

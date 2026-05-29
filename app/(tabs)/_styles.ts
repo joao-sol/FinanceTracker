@@ -98,6 +98,16 @@ export const styles = StyleSheet.create({
   picker: {
     color: "#0F172A",
   },
+  categoryActionButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#BFDBFE",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   sectionHeader: {
     marginBottom: 18,
     marginTop: 4,

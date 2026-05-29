@@ -72,6 +72,32 @@ export const styles = StyleSheet.create({
     color: "#334155",
     marginBottom: 10,
   },
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  labelInRow: {
+    marginBottom: 0,
+  },
+  categoryLinkButton: {
+    minHeight: 32,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#BFDBFE",
+    backgroundColor: "#EFF6FF",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+  categoryLinkText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#2F66F5",
+  },
   input: {
     height: 54,
     backgroundColor: "#FFFFFF",
@@ -111,6 +137,13 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 12,
     elevation: 6,
+  },
+  errorText: {
+    color: "#DC2626",
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 14,
+    textAlign: "center",
   },
   saveButtonText: {
     color: "#FFFFFF",

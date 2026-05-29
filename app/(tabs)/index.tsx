@@ -1,7 +1,8 @@
 import { Feather } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
+import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { FlatList, Text, TextInput, View } from "react-native";
+import { FlatList, Pressable, Text, TextInput, View } from "react-native";
 
 import { FilterChip } from "@/components/filter";
 import { TransactionCard } from "@/components/transactionCard";
@@ -123,6 +124,14 @@ export default function HomeScreen() {
                 ))}
               </Picker>
             </View>
+
+            <Pressable
+              onPress={() => router.push("/categories" as never)}
+              style={styles.categoryActionButton}
+              accessibilityLabel="Gerenciar categorias"
+            >
+              <Feather name="plus" size={22} color="#2F66F5" />
+            </Pressable>
           </View>
         </View>
 

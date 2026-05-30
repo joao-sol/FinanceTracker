@@ -10,23 +10,23 @@ O aplicativo busca fornecer uma visão clara da situação financeira do usuári
 
 #### 🔹 Funcionalidades básicas
 
-- [ ] Adicionar receita
-- [ ] Adicionar despesa
-- [ ] Listar transações
-- [ ] Editar transações
-- [ ] Excluir transações
-- [ ] Exibir saldo total
+- [x] Adicionar receita
+- [x] Adicionar despesa
+- [x] Listar transações
+- [x] Editar transações
+- [x] Excluir transações
+- [x] Exibir saldo total
 
 #### 🔹 Funcionalidades intermediárias
 
 - [ ] Filtrar transações por categoria
 - [ ] Filtrar por período (data)
-- [ ] Exibir resumo financeiro (total de receitas vs despesas)
+- [x] Exibir resumo financeiro (total de receitas vs despesas)
 
 #### 🔹 Funcionalidades extras - Implementações futuras
 
-- [ ] Gráfico de gastos
-- [ ] Categorias personalizadas
+- [x] Gráfico de gastos
+- [x] Categorias personalizadas
 - [ ] Modo escuro
 
 ---

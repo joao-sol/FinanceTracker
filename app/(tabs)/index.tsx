@@ -1,13 +1,16 @@
 import { Feather } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
-import { FlatList, Pressable, Text, TextInput, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { Alert, FlatList, Pressable, Text, TextInput, View } from "react-native";
 
 import { FilterChip } from "@/components/filter";
 import { TransactionCard } from "@/components/transactionCard";
 import { useCategoryStore } from "@/store/useCategoryStore";
-import { useTransactionStore } from "@/store/useTransactionStore";
+import {
+  type Transaction,
+  useTransactionStore,
+} from "@/store/useTransactionStore";
 
 import { styles } from "./_styles";
 
@@ -18,6 +21,9 @@ export default function HomeScreen() {
   const getBalance = useTransactionStore((state) => state.getBalance);
   const getTotalIncome = useTransactionStore((state) => state.getTotalIncome);
   const getTotalExpense = useTransactionStore((state) => state.getTotalExpense);
+  const removeTransaction = useTransactionStore(
+    (state) => state.removeTransaction,
+  );
   const categories = useCategoryStore((state) => state.categories);
 
   const [search, setSearch] = useState("");
@@ -27,6 +33,16 @@ export default function HomeScreen() {
   const balance = getBalance();
   const totalIncome = getTotalIncome();
   const totalExpense = getTotalExpense();
+
+  useEffect(() => {
+    const categoryStillExists = categories.some(
+      (category) => category.id === selectedCategoryId,
+    );
+
+    if (selectedCategoryId !== "all" && !categoryStillExists) {
+      setSelectedCategoryId("all");
+    }
+  }, [categories, selectedCategoryId]);
 
   function getCategoryName(categoryId: string) {
     const category = categories.find((item) => item.id === categoryId);
@@ -52,6 +68,46 @@ export default function HomeScreen() {
       return matchesType && matchesCategory && matchesSearch;
     });
   }, [transactions, typeFilter, selectedCategoryId, search, categories]);
+
+  function confirmRemoveTransaction(transaction: Transaction) {
+    Alert.alert(
+      "Excluir transação",
+      `Deseja excluir "${transaction.title}"?`,
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: () => removeTransaction(transaction.id),
+        },
+      ],
+    );
+  }
+
+  function handleTransactionLongPress(transaction: Transaction) {
+    Alert.alert(transaction.title, "O que deseja fazer?", [
+      {
+        text: "Editar",
+        onPress: () =>
+          router.push({
+            pathname: "/add",
+            params: { transactionId: transaction.id },
+          }),
+      },
+      {
+        text: "Excluir",
+        style: "destructive",
+        onPress: () => confirmRemoveTransaction(transaction),
+      },
+      {
+        text: "Cancelar",
+        style: "cancel",
+      },
+    ]);
+  }
 
   return (
     <View style={styles.container}>
@@ -118,7 +174,11 @@ export default function HomeScreen() {
                 {categories.map((category) => (
                   <Picker.Item
                     key={category.id}
-                    label={category.name}
+                    label={
+                      category.isActive === false
+                        ? `${category.name} (inativa)`
+                        : category.name
+                    }
                     value={category.id}
                   />
                 ))}
@@ -154,6 +214,7 @@ export default function HomeScreen() {
               amount={item.amount}
               date={item.date}
               type={item.type}
+              onLongPress={() => handleTransactionLongPress(item)}
             />
           )}
           ListEmptyComponent={

@@ -1,5 +1,5 @@
 import { FontAwesome } from "@expo/vector-icons";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 import { styles } from "./styles";
 
@@ -11,6 +11,7 @@ type TransactionCardProps = {
   amount: number;
   date: string;
   type: TransactionType;
+  onLongPress?: () => void;
 };
 
 export function TransactionCard({
@@ -19,11 +20,16 @@ export function TransactionCard({
   amount,
   date,
   type,
+  onLongPress,
 }: TransactionCardProps) {
   const isIncome = type === "income";
 
   return (
-    <View style={styles.card}>
+    <Pressable
+      onLongPress={onLongPress}
+      delayLongPress={350}
+      style={styles.card}
+    >
       <View style={styles.leftContent}>
         <View
           style={[
@@ -52,6 +58,6 @@ export function TransactionCard({
         </Text>
         <Text style={styles.date}>{date}</Text>
       </View>
-    </View>
+    </Pressable>
   );
 }

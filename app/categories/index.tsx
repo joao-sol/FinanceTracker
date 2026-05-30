@@ -1,18 +1,44 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
-import { FlatList, Pressable, Text, TextInput, View } from "react-native";
+import { Alert, FlatList, Pressable, Text, TextInput, View } from "react-native";
 
-import { useCategoryStore } from "@/store/useCategoryStore";
+import { type Category, useCategoryStore } from "@/store/useCategoryStore";
+import { useTransactionStore } from "@/store/useTransactionStore";
 
 import { styles } from "./_styles";
+
+type CategoryStatusFilter = "active" | "inactive";
+
+function isCategoryActive(category: Category) {
+  return category.isActive !== false;
+}
 
 export default function CategoriesScreen() {
   const categories = useCategoryStore((state) => state.categories);
   const addCategory = useCategoryStore((state) => state.addCategory);
+  const updateCategory = useCategoryStore((state) => state.updateCategory);
+  const deactivateCategory = useCategoryStore(
+    (state) => state.deactivateCategory,
+  );
+  const activateCategory = useCategoryStore((state) => state.activateCategory);
+  const transactions = useTransactionStore((state) => state.transactions);
 
   const [name, setName] = useState("");
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
+    null,
+  );
+  const [statusFilter, setStatusFilter] =
+    useState<CategoryStatusFilter>("active");
   const [error, setError] = useState("");
+
+  const activeCategories = categories.filter(isCategoryActive);
+  const inactiveCategories = categories.filter(
+    (category) => !isCategoryActive(category),
+  );
+  const visibleCategories =
+    statusFilter === "active" ? activeCategories : inactiveCategories;
+  const isEditing = Boolean(editingCategoryId);
 
   function clearError() {
     if (error) {
@@ -20,7 +46,13 @@ export default function CategoriesScreen() {
     }
   }
 
-  function handleAddCategory() {
+  function resetForm() {
+    setName("");
+    setEditingCategoryId(null);
+    setError("");
+  }
+
+  function handleSaveCategory() {
     const normalizedName = name.trim();
 
     if (!normalizedName) {
@@ -28,19 +60,126 @@ export default function CategoriesScreen() {
       return;
     }
 
-    const alreadyExists = categories.some(
+    const existingCategory = categories.find(
       (category) =>
+        category.id !== editingCategoryId &&
         category.name.toLowerCase() === normalizedName.toLowerCase(),
     );
 
-    if (alreadyExists) {
-      setError("Essa categoria já existe.");
+    if (existingCategory) {
+      setError(
+        isCategoryActive(existingCategory)
+          ? "Essa categoria já existe."
+          : "Essa categoria já existe na aba Inativas.",
+      );
       return;
     }
 
-    addCategory(normalizedName);
-    setName("");
+    if (editingCategoryId) {
+      updateCategory(editingCategoryId, normalizedName);
+    } else {
+      addCategory(normalizedName);
+    }
+
+    resetForm();
+  }
+
+  function handleEditCategory(category: Category) {
+    setEditingCategoryId(category.id);
+    setName(category.name);
+    setStatusFilter(isCategoryActive(category) ? "active" : "inactive");
     setError("");
+  }
+
+  function confirmDeactivateCategory(category: Category) {
+    const linkedTransactions = transactions.filter(
+      (transaction) => transaction.categoryId === category.id,
+    ).length;
+    const transactionLabel =
+      linkedTransactions === 1 ? "transação" : "transações";
+    const linkedMessage = linkedTransactions
+      ? ` Ela continuará associada a ${linkedTransactions} ${transactionLabel} antiga${
+          linkedTransactions === 1 ? "" : "s"
+        }.`
+      : "";
+
+    Alert.alert(
+      "Inativar categoria",
+      `Deseja inativar "${category.name}"? Ela não aparecerá em novas transações.${linkedMessage}`,
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Inativar",
+          style: "destructive",
+          onPress: () => {
+            deactivateCategory(category.id);
+
+            if (editingCategoryId === category.id) {
+              resetForm();
+            }
+          },
+        },
+      ],
+    );
+  }
+
+  function confirmActivateCategory(category: Category) {
+    Alert.alert(
+      "Reativar categoria",
+      `Deseja reativar "${category.name}" para novas transações?`,
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Reativar",
+          onPress: () => {
+            activateCategory(category.id);
+            setStatusFilter("active");
+          },
+        },
+      ],
+    );
+  }
+
+  function handleCategoryLongPress(category: Category) {
+    if (isCategoryActive(category)) {
+      Alert.alert(category.name, "O que deseja fazer?", [
+        {
+          text: "Editar",
+          onPress: () => handleEditCategory(category),
+        },
+        {
+          text: "Inativar",
+          style: "destructive",
+          onPress: () => confirmDeactivateCategory(category),
+        },
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+      ]);
+      return;
+    }
+
+    Alert.alert(category.name, "O que deseja fazer?", [
+      {
+        text: "Editar",
+        onPress: () => handleEditCategory(category),
+      },
+      {
+        text: "Reativar",
+        onPress: () => confirmActivateCategory(category),
+      },
+      {
+        text: "Cancelar",
+        style: "cancel",
+      },
+    ]);
   }
 
   return (
@@ -57,7 +196,9 @@ export default function CategoriesScreen() {
 
       <View style={styles.content}>
         <View style={styles.formSection}>
-          <Text style={styles.sectionTitle}>Nova categoria</Text>
+          <Text style={styles.sectionTitle}>
+            {isEditing ? "Editar categoria" : "Nova categoria"}
+          </Text>
 
           <View style={styles.formRow}>
             <TextInput
@@ -71,44 +212,133 @@ export default function CategoriesScreen() {
               style={styles.input}
             />
 
+            {isEditing ? (
+              <Pressable
+                onPress={resetForm}
+                style={styles.cancelButton}
+                accessibilityLabel="Cancelar edição"
+              >
+                <FontAwesome name="times" size={18} color="#64748B" />
+              </Pressable>
+            ) : null}
+
             <Pressable
-              onPress={handleAddCategory}
+              onPress={handleSaveCategory}
               style={styles.addButton}
-              accessibilityLabel="Adicionar categoria"
+              accessibilityLabel={
+                isEditing ? "Salvar categoria" : "Adicionar categoria"
+              }
             >
-              <FontAwesome name="plus" size={18} color="#FFFFFF" />
+              <FontAwesome
+                name={isEditing ? "check" : "plus"}
+                size={18}
+                color="#FFFFFF"
+              />
             </Pressable>
           </View>
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
         </View>
 
+        <View style={styles.statusTabs}>
+          <Pressable
+            onPress={() => setStatusFilter("active")}
+            style={[
+              styles.statusTabButton,
+              statusFilter === "active" && styles.statusTabButtonActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.statusTabText,
+                statusFilter === "active" && styles.statusTabTextActive,
+              ]}
+            >
+              Ativas ({activeCategories.length})
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => setStatusFilter("inactive")}
+            style={[
+              styles.statusTabButton,
+              statusFilter === "inactive" && styles.statusTabButtonActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.statusTabText,
+                statusFilter === "inactive" && styles.statusTabTextActive,
+              ]}
+            >
+              Inativas ({inactiveCategories.length})
+            </Text>
+          </Pressable>
+        </View>
+
         <View style={styles.listHeader}>
-          <Text style={styles.sectionTitle}>Categorias existentes</Text>
-          <Text style={styles.counterText}>{categories.length} itens</Text>
+          <Text style={styles.sectionTitle}>
+            {statusFilter === "active"
+              ? "Categorias ativas"
+              : "Categorias inativas"}
+          </Text>
+          <Text style={styles.counterText}>
+            {visibleCategories.length} itens
+          </Text>
         </View>
 
         <FlatList
-          data={categories}
+          data={visibleCategories}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => (
-            <View style={styles.categoryItem}>
-              <View style={styles.categoryIcon}>
-                <FontAwesome name="tag" size={16} color="#2F66F5" />
-              </View>
+          renderItem={({ item }) => {
+            const isActive = isCategoryActive(item);
 
-              <Text style={styles.categoryName}>{item.name}</Text>
-            </View>
-          )}
+            return (
+              <Pressable
+                onLongPress={() => handleCategoryLongPress(item)}
+                delayLongPress={350}
+                style={[
+                  styles.categoryItem,
+                  !isActive && styles.categoryItemInactive,
+                ]}
+              >
+                <View
+                  style={[
+                    styles.categoryIcon,
+                    !isActive && styles.categoryIconInactive,
+                  ]}
+                >
+                  <FontAwesome
+                    name="tag"
+                    size={16}
+                    color={isActive ? "#2F66F5" : "#64748B"}
+                  />
+                </View>
+
+                <Text
+                  style={[
+                    styles.categoryName,
+                    !isActive && styles.categoryNameInactive,
+                  ]}
+                >
+                  {item.name}
+                </Text>
+              </Pressable>
+            );
+          }}
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <Text style={styles.emptyStateTitle}>
-                Nenhuma categoria cadastrada
+                {statusFilter === "active"
+                  ? "Nenhuma categoria ativa"
+                  : "Nenhuma categoria inativa"}
               </Text>
               <Text style={styles.emptyStateText}>
-                Crie categorias para organizar suas transações.
+                {statusFilter === "active"
+                  ? "Crie categorias para organizar suas transações."
+                  : "Categorias inativadas aparecerão aqui."}
               </Text>
             </View>
           }

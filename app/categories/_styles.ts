@@ -58,6 +58,16 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: "#0F172A",
   },
+  cancelButton: {
+    width: 54,
+    height: 54,
+    borderRadius: 14,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#CBD5E1",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   addButton: {
     width: 54,
     height: 54,
@@ -71,6 +81,33 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginTop: 12,
+  },
+  statusTabs: {
+    flexDirection: "row",
+    backgroundColor: "#EEF0F4",
+    borderRadius: 14,
+    padding: 4,
+    marginBottom: 22,
+  },
+  statusTabButton: {
+    flex: 1,
+    height: 44,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  statusTabButtonActive: {
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  statusTabText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#64748B",
+  },
+  statusTabTextActive: {
+    color: "#2F66F5",
   },
   listHeader: {
     flexDirection: "row",
@@ -97,6 +134,10 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     gap: 14,
   },
+  categoryItemInactive: {
+    backgroundColor: "#F8FAFC",
+    borderColor: "#CBD5E1",
+  },
   categoryIcon: {
     width: 38,
     height: 38,
@@ -105,11 +146,17 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  categoryIconInactive: {
+    backgroundColor: "#E2E8F0",
+  },
   categoryName: {
     flex: 1,
     fontSize: 16,
     fontWeight: "700",
     color: "#0F172A",
+  },
+  categoryNameInactive: {
+    color: "#64748B",
   },
   emptyState: {
     backgroundColor: "#FFFFFF",

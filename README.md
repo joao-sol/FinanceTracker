@@ -106,7 +106,7 @@ https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=shari
 ### 📅 Semana 4
 
 - [x] Implementação da tela de cadastro de transação
-- [ ] Validação de formulário
+- [x] Validação de formulário
 
 ### 📅 Semana 5
 
@@ -116,7 +116,7 @@ https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=shari
 ### 📅 Semana 6
 
 - [ ] Integração com SQLite
-- [ ] Persistência de dados
+- [x] Persistência de dados
 
 ### 📅 Semana 7
 

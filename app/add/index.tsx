@@ -1,7 +1,7 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import { router } from "expo-router";
-import { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 
 import { useCategoryStore } from "@/store/useCategoryStore";
@@ -36,25 +36,95 @@ function parseAmount(value: string) {
   return Number.isFinite(amount) ? amount : 0;
 }
 
+function isCategoryActive(category: { isActive?: boolean }) {
+  return category.isActive !== false;
+}
+
 export default function AddTransactionScreen() {
   const categories = useCategoryStore((state) => state.categories);
+  const transactions = useTransactionStore((state) => state.transactions);
   const addTransaction = useTransactionStore((state) => state.addTransaction);
+  const updateTransaction = useTransactionStore(
+    (state) => state.updateTransaction,
+  );
+  const { transactionId } = useLocalSearchParams();
+
+  const editingTransactionId = Array.isArray(transactionId)
+    ? transactionId[0]
+    : transactionId;
 
   const [type, setType] = useState<TransactionType>("expense");
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [date] = useState(getTodayDate);
+  const [date, setDate] = useState(getTodayDate);
   const [error, setError] = useState("");
 
+  const editingTransaction = editingTransactionId
+    ? transactions.find((item) => item.id === editingTransactionId)
+    : undefined;
+  const activeCategories = categories.filter(isCategoryActive);
+  const currentCategory = categories.find(
+    (category) => category.id === categoryId,
+  );
+  const inactiveCurrentCategory =
+    editingTransaction &&
+    currentCategory &&
+    editingTransaction.categoryId === currentCategory.id &&
+    !isCategoryActive(currentCategory)
+      ? currentCategory
+      : undefined;
+  const selectableCategories = inactiveCurrentCategory
+    ? [inactiveCurrentCategory, ...activeCategories]
+    : activeCategories;
   const isExpense = type === "expense";
   const formattedDate = formatDateToBrazilian(date);
+  const isEditing = Boolean(editingTransactionId);
 
   function clearError() {
     if (error) {
       setError("");
     }
   }
+
+  useEffect(() => {
+    if (!editingTransactionId) return;
+
+    const transaction = transactions.find(
+      (item) => item.id === editingTransactionId,
+    );
+
+    if (!transaction) {
+      setError("Transação não encontrada.");
+      return;
+    }
+
+    setType(transaction.type);
+    setAmount(transaction.amount.toFixed(2).replace(".", ","));
+    setTitle(transaction.title);
+    setCategoryId(transaction.categoryId);
+    setDate(transaction.date);
+    setError("");
+  }, [editingTransactionId, transactions]);
+
+  useEffect(() => {
+    if (!categoryId) return;
+
+    const selectedCategory = categories.find(
+      (category) => category.id === categoryId,
+    );
+    const canKeepInactiveCategory =
+      editingTransaction?.categoryId === categoryId &&
+      selectedCategory &&
+      !isCategoryActive(selectedCategory);
+
+    if (
+      !selectedCategory ||
+      (!isCategoryActive(selectedCategory) && !canKeepInactiveCategory)
+    ) {
+      setCategoryId("");
+    }
+  }, [categories, categoryId, editingTransaction?.categoryId]);
 
   function handleSave() {
     const parsedAmount = parseAmount(amount);
@@ -70,18 +140,46 @@ export default function AddTransactionScreen() {
       return;
     }
 
-    if (!categoryId) {
-      setError("Selecione uma categoria.");
+    const selectedCategory = categories.find(
+      (category) => category.id === categoryId,
+    );
+    const isOriginalInactiveCategory =
+      editingTransaction?.categoryId === categoryId &&
+      selectedCategory &&
+      !isCategoryActive(selectedCategory);
+
+    if (
+      !categoryId ||
+      !selectedCategory ||
+      (!isCategoryActive(selectedCategory) && !isOriginalInactiveCategory)
+    ) {
+      setError("Selecione uma categoria ativa.");
       return;
     }
 
-    addTransaction({
+    const transactionData = {
       title: normalizedTitle,
       amount: parsedAmount,
       type,
       categoryId,
       date,
-    });
+    };
+
+    if (
+      editingTransactionId &&
+      !transactions.some(
+        (transaction) => transaction.id === editingTransactionId,
+      )
+    ) {
+      setError("Transação não encontrada.");
+      return;
+    }
+
+    if (editingTransactionId) {
+      updateTransaction(editingTransactionId, transactionData);
+    } else {
+      addTransaction(transactionData);
+    }
 
     router.back();
   }
@@ -93,7 +191,9 @@ export default function AddTransactionScreen() {
           <FontAwesome name="arrow-left" size={20} color="#334155" />
         </Pressable>
 
-        <Text style={styles.headerTitle}>Nova Transação</Text>
+        <Text style={styles.headerTitle}>
+          {isEditing ? "Editar Transação" : "Nova Transação"}
+        </Text>
 
         <View style={styles.headerSpacer} />
       </View>
@@ -182,10 +282,14 @@ export default function AddTransactionScreen() {
             >
               <Picker.Item label="Selecione uma categoria" value="" />
 
-              {categories.map((category) => (
+              {selectableCategories.map((category) => (
                 <Picker.Item
                   key={category.id}
-                  label={category.name}
+                  label={
+                    isCategoryActive(category)
+                      ? category.name
+                      : `${category.name} (inativa)`
+                  }
                   value={category.id}
                 />
               ))}
@@ -206,7 +310,9 @@ export default function AddTransactionScreen() {
 
         <Pressable onPress={handleSave} style={styles.saveButton}>
           <FontAwesome name="check" size={16} color="#FFFFFF" />
-          <Text style={styles.saveButtonText}>Salvar Transação</Text>
+          <Text style={styles.saveButtonText}>
+            {isEditing ? "Salvar Alterações" : "Salvar Transação"}
+          </Text>
         </Pressable>
       </View>
     </View>

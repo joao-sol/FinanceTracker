@@ -4,12 +4,14 @@ export type Category = {
   id: string;
   name: string;
   createdAt: string;
+  isActive: boolean;
 };
 
 type CategoryStore = {
   categories: Category[];
   addCategory: (name: string) => void;
-  removeCategory: (id: string) => void;
+  deactivateCategory: (id: string) => void;
+  activateCategory: (id: string) => void;
   updateCategory: (id: string, name: string) => void;
   getCategoryById: (id: string) => Category | undefined;
 };
@@ -20,26 +22,31 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
       id: "1",
       name: "Salário",
       createdAt: new Date().toISOString(),
+      isActive: true,
     },
     {
       id: "2",
       name: "Alimentação",
       createdAt: new Date().toISOString(),
+      isActive: true,
     },
     {
       id: "3",
       name: "Transporte",
       createdAt: new Date().toISOString(),
+      isActive: true,
     },
     {
       id: "4",
       name: "Moradia",
       createdAt: new Date().toISOString(),
+      isActive: true,
     },
     {
       id: "5",
       name: "Lazer",
       createdAt: new Date().toISOString(),
+      isActive: true,
     },
   ],
 
@@ -59,6 +66,7 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
         id: Date.now().toString(),
         name: normalized,
         createdAt: new Date().toISOString(),
+        isActive: true,
       };
 
       return {
@@ -66,9 +74,18 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
       };
     }),
 
-  removeCategory: (id) =>
+  deactivateCategory: (id) =>
     set((state) => ({
-      categories: state.categories.filter((category) => category.id !== id),
+      categories: state.categories.map((category) =>
+        category.id === id ? { ...category, isActive: false } : category,
+      ),
+    })),
+
+  activateCategory: (id) =>
+    set((state) => ({
+      categories: state.categories.map((category) =>
+        category.id === id ? { ...category, isActive: true } : category,
+      ),
     })),
 
   updateCategory: (id, name) =>

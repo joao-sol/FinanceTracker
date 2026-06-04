@@ -1,125 +1,105 @@
 import { create } from "zustand";
 
-export type TransactionType = "income" | "expense";
+import {
+  createTransaction,
+  deleteTransactionRecord,
+  getTransactions,
+  updateTransactionRecord,
+} from "@/database";
+import type {
+  CreateTransactionInput,
+  Transaction,
+  UpdateTransactionInput,
+} from "@/types/finance";
 
-export type Transaction = {
-  id: string;
-  title: string;
-  amount: number;
-  type: TransactionType;
-  categoryId: string;
-  date: string;
-  createdAt: string;
-};
-
-type CreateTransactionInput = {
-  title: string;
-  amount: number;
-  type: TransactionType;
-  categoryId: string;
-  date: string;
-};
-
-type UpdateTransactionInput = {
-  title?: string;
-  amount?: number;
-  type?: TransactionType;
-  categoryId?: string;
-  date?: string;
-};
+export type { Transaction, TransactionType } from "@/types/finance";
 
 type TransactionStore = {
   transactions: Transaction[];
-  addTransaction: (data: CreateTransactionInput) => void;
-  removeTransaction: (id: string) => void;
-  updateTransaction: (id: string, data: UpdateTransactionInput) => void;
+  loadTransactions: () => Promise<void>;
+  addTransaction: (data: CreateTransactionInput) => Promise<void>;
+  removeTransaction: (id: string) => Promise<void>;
+  updateTransaction: (
+    id: string,
+    data: UpdateTransactionInput,
+  ) => Promise<void>;
   getTransactionById: (id: string) => Transaction | undefined;
   getBalance: () => number;
   getTotalIncome: () => number;
   getTotalExpense: () => number;
 };
 
+function sortTransactions(transactions: Transaction[]) {
+  return [...transactions].sort((first, second) => {
+    const dateComparison = second.date.localeCompare(first.date);
+
+    if (dateComparison !== 0) return dateComparison;
+
+    return second.createdAt.localeCompare(first.createdAt);
+  });
+}
+
 export const useTransactionStore = create<TransactionStore>((set, get) => ({
-  transactions: [
-    {
-      id: "1",
-      title: "Salário",
-      amount: 5000,
-      type: "income",
-      categoryId: "1",
-      date: "2026-04-01",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "2",
-      title: "Supermercado",
-      amount: 350,
-      type: "expense",
-      categoryId: "2",
-      date: "2026-04-10",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "4",
-      title: "Aluguel",
-      amount: 1200,
-      type: "expense",
-      categoryId: "4",
-      date: "2026-04-05",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "5",
-      title: "Bar",
-      amount: 80,
-      type: "expense",
-      categoryId: "5",
-      date: "2026-04-21",
-      createdAt: new Date().toISOString(),
-    },
-  ],
+  transactions: [],
 
-  addTransaction: (data) =>
-    set((state) => {
-      const title = data.title.trim();
+  loadTransactions: async () => {
+    const transactions = await getTransactions();
 
-      if (!title || data.amount <= 0) return state;
+    set({ transactions });
+  },
 
-      const newTransaction: Transaction = {
-        id: Date.now().toString(),
-        title,
-        amount: data.amount,
-        type: data.type,
-        categoryId: data.categoryId,
-        date: data.date,
-        createdAt: new Date().toISOString(),
-      };
+  addTransaction: async (data) => {
+    const title = data.title.trim();
 
-      return {
-        transactions: [...state.transactions, newTransaction],
-      };
-    }),
+    if (!title || data.amount <= 0) return;
 
-  removeTransaction: (id) =>
+    const newTransaction = await createTransaction({
+      ...data,
+      title,
+    });
+
+    set((state) => ({
+      transactions: sortTransactions([...state.transactions, newTransaction]),
+    }));
+  },
+
+  removeTransaction: async (id) => {
+    await deleteTransactionRecord(id);
+
     set((state) => ({
       transactions: state.transactions.filter(
         (transaction) => transaction.id !== id,
       ),
-    })),
+    }));
+  },
 
-  updateTransaction: (id, data) =>
+  updateTransaction: async (id, data) => {
+    const normalizedData: UpdateTransactionInput = { ...data };
+
+    if (data.title !== undefined) {
+      normalizedData.title = data.title.trim();
+    }
+
+    if (normalizedData.title !== undefined && !normalizedData.title) return;
+    if (normalizedData.amount !== undefined && normalizedData.amount <= 0) {
+      return;
+    }
+
+    await updateTransactionRecord(id, normalizedData);
+
     set((state) => ({
-      transactions: state.transactions.map((transaction) => {
-        if (transaction.id !== id) return transaction;
-
-        return {
-          ...transaction,
-          ...data,
-          title:
-            data.title !== undefined ? data.title.trim() : transaction.title,
-        };
-      }),
-    })),
+      transactions: sortTransactions(
+        state.transactions.map((transaction) =>
+          transaction.id === id
+            ? {
+                ...transaction,
+                ...normalizedData,
+              }
+            : transaction,
+        ),
+      ),
+    }));
+  },
 
   getTransactionById: (id) =>
     get().transactions.find((transaction) => transaction.id === id),

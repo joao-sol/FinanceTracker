@@ -19,8 +19,8 @@ O aplicativo busca fornecer uma visão clara da situação financeira do usuári
 
 #### 🔹 Funcionalidades intermediárias
 
-- [ ] Filtrar transações por categoria
-- [ ] Filtrar por período (data)
+- [x] Filtrar transações por categoria
+- [x] Filtrar por período (data)
 - [x] Exibir resumo financeiro (total de receitas vs despesas)
 
 #### 🔹 Funcionalidades extras - Implementações futuras
@@ -54,11 +54,12 @@ O aplicativo utilizará **persistência local com SQLite**, garantindo funcionam
 
 #### 🔹 Tabela: `categories`
 
-| Campo      | Tipo    | Descrição           |
-| ---------- | ------- | ------------------- |
-| id         | INTEGER | Identificador único |
-| name       | TEXT    | Nome da categoria   |
-| created_at | TEXT    | Data de criação     |
+| Campo      | Tipo    | Descrição                                      |
+| ---------- | ------- | ---------------------------------------------- |
+| id         | INTEGER | Identificador único                            |
+| name       | TEXT    | Nome da categoria                              |
+| is_active  | INTEGER | Status da categoria: `1` ativa ou `0` inativa  |
+| created_at | TEXT    | Data de criação                                |
 
 ---
 
@@ -80,6 +81,7 @@ O aplicativo utilizará **persistência local com SQLite**, garantindo funcionam
 
 - Uma **categoria** pode estar associada a várias **transações**
 - Cada **transação** pertence a uma única **categoria**
+- Categorias não são excluídas quando possuem histórico: elas podem ser marcadas como **inativas** para preservar transações antigas
 
 👉 Modelagem completa disponível em:
 https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=sharing
@@ -115,7 +117,7 @@ https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=shari
 
 ### 📅 Semana 6
 
-- [ ] Integração com SQLite
+- [x] Integração com SQLite
 - [x] Persistência de dados
 
 ### 📅 Semana 7
@@ -125,8 +127,8 @@ https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=shari
 
 ### 📅 Semana 8
 
-- [ ] Edição e exclusão de transações
-- [ ] Melhorias na UX
+- [x] Edição e exclusão de transações
+- [x] Melhorias na UX
 
 ### 📅 Semana 9
 
@@ -167,10 +169,11 @@ Desde o último checkpoint, foram aplicados recursos estudados nos módulos ante
 - **Layout principal com Stack:** utilizado no arquivo `app/_layout.tsx` para organizar a navegação raiz da aplicação, separando o grupo de abas da tela de nova transação.
 - **Layout com Tabs:** utilizado no arquivo `app/(tabs)/_layout.tsx` para configurar a navegação inferior entre as telas `Início` e `Gráficos`.
 - **Tela de nova transação fora das abas:** a tela `Nova Transação` foi configurada fora do grupo `(tabs)`, para que seja aberta sem a barra inferior, mantendo o comportamento previsto no protótipo.
-- **Zustand:** utilizado para gerenciamento de estado global. Foram criadas as stores `useTransactionStore` e `useCategoryStore`, responsáveis por armazenar transações e categorias em memória.
-- **Dados fake/mocks:** utilizados para popular as telas neste checkpoint, permitindo demonstrar listagem de transações, filtros, cálculo de saldo, receitas, despesas e gráficos.
+- **Zustand:** utilizado para gerenciamento de estado global. Foram criadas as stores `useTransactionStore` e `useCategoryStore`, responsáveis por centralizar transações e categorias carregadas do banco local.
+- **Dados iniciais:** utilizados na primeira execução para popular o SQLite e permitir demonstrar listagem de transações, filtros, cálculo de saldo, receitas, despesas e gráficos.
 - **React Native Chart Kit:** utilizado para exibir gráficos financeiros na tela de análise, incluindo gráfico de pizza e gráfico de barras.
 - **Picker de categorias:** utilizado para permitir a seleção padronizada de categorias, tanto nos filtros quanto na tela de nova transação.
+- **SQLite local:** utilizado para persistir categorias e transações no dispositivo, mantendo os dados mesmo após fechar o aplicativo.
 
 ### Boas práticas de componentes reutilizáveis aplicadas
 

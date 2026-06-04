@@ -2,7 +2,15 @@ import { Feather } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { Alert, FlatList, Pressable, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  FlatList,
+  Modal,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 import { FilterChip } from "@/components/filter";
 import { TransactionCard } from "@/components/transactionCard";
@@ -15,6 +23,62 @@ import {
 import { styles } from "./_styles";
 
 type TypeFilter = "all" | "income" | "expense";
+
+function formatDateInput(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
+function parseBrazilianDate(value: string) {
+  const [day, month, year] = value.split("/").map(Number);
+
+  if (!day || !month || !year || year < 1900) return null;
+
+  const date = new Date(year, month - 1, day);
+  const isValidDate =
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day;
+
+  if (!isValidDate) return null;
+
+  return [
+    String(year).padStart(4, "0"),
+    String(month).padStart(2, "0"),
+    String(day).padStart(2, "0"),
+  ].join("-");
+}
+
+function getDateFilterError(startDateInput: string, endDateInput: string) {
+  const startDate = startDateInput ? parseBrazilianDate(startDateInput) : null;
+  const endDate = endDateInput ? parseBrazilianDate(endDateInput) : null;
+
+  if (startDateInput && startDateInput.length < 10) {
+    return "Complete a data inicial.";
+  }
+
+  if (startDateInput && !startDate) {
+    return "Informe uma data inicial válida.";
+  }
+
+  if (endDateInput && endDateInput.length < 10) {
+    return "Complete a data final.";
+  }
+
+  if (endDateInput && !endDate) {
+    return "Informe uma data final válida.";
+  }
+
+  if (startDate && endDate && startDate > endDate) {
+    return "A data inicial não pode ser maior que a final.";
+  }
+
+  return "";
+}
 
 export default function HomeScreen() {
   const transactions = useTransactionStore((state) => state.transactions);
@@ -29,10 +93,27 @@ export default function HomeScreen() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all");
+  const [startDateInput, setStartDateInput] = useState("");
+  const [endDateInput, setEndDateInput] = useState("");
+  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
+  const [draftCategoryId, setDraftCategoryId] = useState<string>("all");
+  const [draftStartDateInput, setDraftStartDateInput] = useState("");
+  const [draftEndDateInput, setDraftEndDateInput] = useState("");
+  const [filterError, setFilterError] = useState("");
 
   const balance = getBalance();
   const totalIncome = getTotalIncome();
   const totalExpense = getTotalExpense();
+  const startDate = startDateInput ? parseBrazilianDate(startDateInput) : null;
+  const endDate = endDateInput ? parseBrazilianDate(endDateInput) : null;
+  const hasDateFilter = Boolean(startDateInput || endDateInput);
+  const hasCategoryFilter = selectedCategoryId !== "all";
+  const activeFilterCount =
+    (hasCategoryFilter ? 1 : 0) + (hasDateFilter ? 1 : 0);
+  const draftDateFilterError = getDateFilterError(
+    draftStartDateInput,
+    draftEndDateInput,
+  );
 
   useEffect(() => {
     const categoryStillExists = categories.some(
@@ -65,9 +146,67 @@ export default function HomeScreen() {
         transaction.title.toLowerCase().includes(search.toLowerCase()) ||
         categoryName.toLowerCase().includes(search.toLowerCase());
 
-      return matchesType && matchesCategory && matchesSearch;
+      const matchesStartDate = startDate
+        ? transaction.date >= startDate
+        : true;
+      const matchesEndDate = endDate ? transaction.date <= endDate : true;
+      const matchesDate = matchesStartDate && matchesEndDate;
+
+      return matchesType && matchesCategory && matchesSearch && matchesDate;
     });
-  }, [transactions, typeFilter, selectedCategoryId, search, categories]);
+  }, [
+    transactions,
+    typeFilter,
+    selectedCategoryId,
+    search,
+    categories,
+    startDate,
+    endDate,
+  ]);
+
+  function openFilterModal() {
+    setDraftCategoryId(selectedCategoryId);
+    setDraftStartDateInput(startDateInput);
+    setDraftEndDateInput(endDateInput);
+    setFilterError("");
+    setIsFilterModalVisible(true);
+  }
+
+  function closeFilterModal() {
+    setFilterError("");
+    setIsFilterModalVisible(false);
+  }
+
+  function clearFilters() {
+    setSelectedCategoryId("all");
+    setStartDateInput("");
+    setEndDateInput("");
+    setDraftCategoryId("all");
+    setDraftStartDateInput("");
+    setDraftEndDateInput("");
+    setFilterError("");
+    setIsFilterModalVisible(false);
+  }
+
+  function applyFilters() {
+    if (draftDateFilterError) {
+      setFilterError(draftDateFilterError);
+      return;
+    }
+
+    setSelectedCategoryId(draftCategoryId);
+    setStartDateInput(draftStartDateInput);
+    setEndDateInput(draftEndDateInput);
+    closeFilterModal();
+  }
+
+  async function handleRemoveTransaction(transaction: Transaction) {
+    try {
+      await removeTransaction(transaction.id);
+    } catch {
+      Alert.alert("Erro", "Não foi possível excluir a transação.");
+    }
+  }
 
   function confirmRemoveTransaction(transaction: Transaction) {
     Alert.alert(
@@ -81,7 +220,9 @@ export default function HomeScreen() {
         {
           text: "Excluir",
           style: "destructive",
-          onPress: () => removeTransaction(transaction.id),
+          onPress: () => {
+            void handleRemoveTransaction(transaction);
+          },
         },
       ],
     );
@@ -161,38 +302,34 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={styles.categoryFilterSection}>
-          <View style={styles.categoryFilterContainer}>
-            <Feather name="filter" size={20} color="#64748B" />
-            <View style={styles.pickerWrapper}>
-              <Picker
-                selectedValue={selectedCategoryId}
-                onValueChange={(itemValue) => setSelectedCategoryId(itemValue)}
-                style={styles.picker}
-              >
-                <Picker.Item label="Todas as categorias" value="all" />
-                {categories.map((category) => (
-                  <Picker.Item
-                    key={category.id}
-                    label={
-                      category.isActive === false
-                        ? `${category.name} (inativa)`
-                        : category.name
-                    }
-                    value={category.id}
-                  />
-                ))}
-              </Picker>
-            </View>
-
-            <Pressable
-              onPress={() => router.push("/categories" as never)}
-              style={styles.categoryActionButton}
-              accessibilityLabel="Gerenciar categorias"
+        <View style={styles.filterButtonSection}>
+          <Pressable
+            onPress={openFilterModal}
+            style={[
+              styles.filterButton,
+              activeFilterCount > 0 && styles.filterButtonActive,
+            ]}
+          >
+            <Feather
+              name="filter"
+              size={18}
+              color={activeFilterCount > 0 ? "#FFFFFF" : "#2F66F5"}
+            />
+            <Text
+              style={[
+                styles.filterButtonText,
+                activeFilterCount > 0 && styles.filterButtonTextActive,
+              ]}
             >
-              <Feather name="plus" size={22} color="#2F66F5" />
-            </Pressable>
-          </View>
+              Filtros
+            </Text>
+
+            {activeFilterCount > 0 ? (
+              <View style={styles.filterCountBadge}>
+                <Text style={styles.filterCountText}>{activeFilterCount}</Text>
+              </View>
+            ) : null}
+          </Pressable>
         </View>
 
         <View style={styles.sectionHeader}>
@@ -229,6 +366,110 @@ export default function HomeScreen() {
           }
         />
       </View>
+      <Modal
+        animationType="fade"
+        transparent
+        visible={isFilterModalVisible}
+        onRequestClose={closeFilterModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.filterModal}>
+            <View style={styles.filterModalHeader}>
+              <Text style={styles.filterModalTitle}>Filtros</Text>
+
+              <Pressable
+                onPress={closeFilterModal}
+                style={styles.filterModalCloseButton}
+                accessibilityLabel="Fechar filtros"
+              >
+                <Feather name="x" size={20} color="#64748B" />
+              </Pressable>
+            </View>
+
+            <View style={styles.filterField}>
+              <Text style={styles.filterLabel}>Categoria</Text>
+
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  selectedValue={draftCategoryId}
+                  onValueChange={(itemValue) => setDraftCategoryId(itemValue)}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Todas as categorias" value="all" />
+                  {categories.map((category) => (
+                    <Picker.Item
+                      key={category.id}
+                      label={
+                        category.isActive === false
+                          ? `${category.name} (inativa)`
+                          : category.name
+                      }
+                      value={category.id}
+                    />
+                  ))}
+                </Picker>
+              </View>
+            </View>
+
+            <Pressable
+              onPress={() => {
+                closeFilterModal();
+                router.push("/categories" as never);
+              }}
+              style={styles.manageCategoriesButton}
+            >
+              <Feather name="plus" size={16} color="#2F66F5" />
+              <Text style={styles.manageCategoriesText}>Gerenciar categorias</Text>
+            </Pressable>
+
+            <View style={styles.filterField}>
+              <Text style={styles.filterLabel}>Período</Text>
+
+              <View style={styles.dateFilterRow}>
+                <TextInput
+                  value={draftStartDateInput}
+                  onChangeText={(value) => {
+                    setDraftStartDateInput(formatDateInput(value));
+                    setFilterError("");
+                  }}
+                  placeholder="Início"
+                  placeholderTextColor="#94A3B8"
+                  keyboardType="number-pad"
+                  maxLength={10}
+                  style={styles.dateInput}
+                />
+
+                <TextInput
+                  value={draftEndDateInput}
+                  onChangeText={(value) => {
+                    setDraftEndDateInput(formatDateInput(value));
+                    setFilterError("");
+                  }}
+                  placeholder="Fim"
+                  placeholderTextColor="#94A3B8"
+                  keyboardType="number-pad"
+                  maxLength={10}
+                  style={styles.dateInput}
+                />
+              </View>
+
+              {filterError ? (
+                <Text style={styles.dateFilterError}>{filterError}</Text>
+              ) : null}
+            </View>
+
+            <View style={styles.filterActions}>
+              <Pressable onPress={clearFilters} style={styles.secondaryButton}>
+                <Text style={styles.secondaryButtonText}>Limpar</Text>
+              </Pressable>
+
+              <Pressable onPress={applyFilters} style={styles.primaryButton}>
+                <Text style={styles.primaryButtonText}>Aplicar</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

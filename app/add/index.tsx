@@ -26,6 +26,35 @@ function formatDateToBrazilian(date: string) {
   return `${day}/${month}/${year}`;
 }
 
+function formatDateInput(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
+function parseBrazilianDate(value: string) {
+  const [day, month, year] = value.split("/").map(Number);
+
+  if (!day || !month || !year || year < 1900) return null;
+
+  const date = new Date(year, month - 1, day);
+  const isValidDate =
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day;
+
+  if (!isValidDate) return null;
+
+  return [
+    String(year).padStart(4, "0"),
+    String(month).padStart(2, "0"),
+    String(day).padStart(2, "0"),
+  ].join("-");
+}
+
 function parseAmount(value: string) {
   const sanitizedValue = value.trim().replace(/[^\d,.]/g, "");
   const normalizedValue = sanitizedValue.includes(",")
@@ -57,8 +86,11 @@ export default function AddTransactionScreen() {
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [date, setDate] = useState(getTodayDate);
+  const [dateInput, setDateInput] = useState(() =>
+    formatDateToBrazilian(getTodayDate()),
+  );
   const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const editingTransaction = editingTransactionId
     ? transactions.find((item) => item.id === editingTransactionId)
@@ -78,7 +110,6 @@ export default function AddTransactionScreen() {
     ? [inactiveCurrentCategory, ...activeCategories]
     : activeCategories;
   const isExpense = type === "expense";
-  const formattedDate = formatDateToBrazilian(date);
   const isEditing = Boolean(editingTransactionId);
 
   function clearError() {
@@ -103,7 +134,7 @@ export default function AddTransactionScreen() {
     setAmount(transaction.amount.toFixed(2).replace(".", ","));
     setTitle(transaction.title);
     setCategoryId(transaction.categoryId);
-    setDate(transaction.date);
+    setDateInput(formatDateToBrazilian(transaction.date));
     setError("");
   }, [editingTransactionId, transactions]);
 
@@ -126,7 +157,9 @@ export default function AddTransactionScreen() {
     }
   }, [categories, categoryId, editingTransaction?.categoryId]);
 
-  function handleSave() {
+  async function handleSave() {
+    if (isSaving) return;
+
     const parsedAmount = parseAmount(amount);
     const normalizedTitle = title.trim();
 
@@ -137,6 +170,13 @@ export default function AddTransactionScreen() {
 
     if (parsedAmount <= 0) {
       setError("Informe um valor maior que zero.");
+      return;
+    }
+
+    const transactionDate = parseBrazilianDate(dateInput);
+
+    if (!transactionDate) {
+      setError("Informe uma data válida no formato dd/mm/aaaa.");
       return;
     }
 
@@ -162,7 +202,7 @@ export default function AddTransactionScreen() {
       amount: parsedAmount,
       type,
       categoryId,
-      date,
+      date: transactionDate,
     };
 
     if (
@@ -175,13 +215,21 @@ export default function AddTransactionScreen() {
       return;
     }
 
-    if (editingTransactionId) {
-      updateTransaction(editingTransactionId, transactionData);
-    } else {
-      addTransaction(transactionData);
-    }
+    setIsSaving(true);
 
-    router.back();
+    try {
+      if (editingTransactionId) {
+        await updateTransaction(editingTransactionId, transactionData);
+      } else {
+        await addTransaction(transactionData);
+      }
+
+      router.back();
+    } catch {
+      setError("Não foi possível salvar a transação.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -300,18 +348,33 @@ export default function AddTransactionScreen() {
         <View style={styles.field}>
           <Text style={styles.label}>Data</Text>
           <TextInput
-            value={formattedDate}
-            editable={false}
+            value={dateInput}
+            onChangeText={(value) => {
+              setDateInput(formatDateInput(value));
+              clearError();
+            }}
+            placeholder="dd/mm/aaaa"
+            placeholderTextColor="#94A3B8"
+            keyboardType="number-pad"
+            maxLength={10}
             style={styles.input}
           />
         </View>
 
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        <Pressable onPress={handleSave} style={styles.saveButton}>
+        <Pressable
+          onPress={handleSave}
+          disabled={isSaving}
+          style={styles.saveButton}
+        >
           <FontAwesome name="check" size={16} color="#FFFFFF" />
           <Text style={styles.saveButtonText}>
-            {isEditing ? "Salvar Alterações" : "Salvar Transação"}
+            {isSaving
+              ? "Salvando..."
+              : isEditing
+                ? "Salvar Alterações"
+                : "Salvar Transação"}
           </Text>
         </Pressable>
       </View>

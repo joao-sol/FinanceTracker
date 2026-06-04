@@ -1,113 +1,111 @@
 import { create } from "zustand";
 
-export type Category = {
-  id: string;
-  name: string;
-  createdAt: string;
-  isActive: boolean;
-};
+import {
+  createCategory,
+  getCategories,
+  setCategoryActive,
+  updateCategoryName,
+} from "@/database";
+import type { Category } from "@/types/finance";
+
+export type { Category } from "@/types/finance";
 
 type CategoryStore = {
   categories: Category[];
-  addCategory: (name: string) => void;
-  deactivateCategory: (id: string) => void;
-  activateCategory: (id: string) => void;
-  updateCategory: (id: string, name: string) => void;
+  loadCategories: () => Promise<void>;
+  addCategory: (name: string) => Promise<void>;
+  deactivateCategory: (id: string) => Promise<void>;
+  activateCategory: (id: string) => Promise<void>;
+  updateCategory: (id: string, name: string) => Promise<void>;
   getCategoryById: (id: string) => Category | undefined;
 };
 
+function sortCategories(categories: Category[]) {
+  return [...categories].sort((first, second) => {
+    if (first.isActive !== second.isActive) {
+      return first.isActive ? -1 : 1;
+    }
+
+    return first.name.localeCompare(second.name, "pt-BR", {
+      sensitivity: "base",
+    });
+  });
+}
+
 export const useCategoryStore = create<CategoryStore>((set, get) => ({
-  categories: [
-    {
-      id: "1",
-      name: "Salário",
-      createdAt: new Date().toISOString(),
-      isActive: true,
-    },
-    {
-      id: "2",
-      name: "Alimentação",
-      createdAt: new Date().toISOString(),
-      isActive: true,
-    },
-    {
-      id: "3",
-      name: "Transporte",
-      createdAt: new Date().toISOString(),
-      isActive: true,
-    },
-    {
-      id: "4",
-      name: "Moradia",
-      createdAt: new Date().toISOString(),
-      isActive: true,
-    },
-    {
-      id: "5",
-      name: "Lazer",
-      createdAt: new Date().toISOString(),
-      isActive: true,
-    },
-  ],
+  categories: [],
 
-  addCategory: (name) =>
-    set((state) => {
-      const normalized = name.trim();
+  loadCategories: async () => {
+    const categories = await getCategories();
 
-      if (!normalized) return state;
+    set({ categories });
+  },
 
-      const alreadyExists = state.categories.some(
-        (category) => category.name.toLowerCase() === normalized.toLowerCase(),
-      );
+  addCategory: async (name) => {
+    const normalized = name.trim();
 
-      if (alreadyExists) return state;
+    if (!normalized) return;
 
-      const newCategory: Category = {
-        id: Date.now().toString(),
-        name: normalized,
-        createdAt: new Date().toISOString(),
-        isActive: true,
-      };
+    const alreadyExists = get().categories.some(
+      (category) => category.name.toLowerCase() === normalized.toLowerCase(),
+    );
 
-      return {
-        categories: [...state.categories, newCategory],
-      };
-    }),
+    if (alreadyExists) return;
 
-  deactivateCategory: (id) =>
+    const newCategory = await createCategory(normalized);
+
     set((state) => ({
-      categories: state.categories.map((category) =>
-        category.id === id ? { ...category, isActive: false } : category,
-      ),
-    })),
+      categories: sortCategories([...state.categories, newCategory]),
+    }));
+  },
 
-  activateCategory: (id) =>
+  deactivateCategory: async (id) => {
+    await setCategoryActive(id, false);
+
     set((state) => ({
-      categories: state.categories.map((category) =>
-        category.id === id ? { ...category, isActive: true } : category,
+      categories: sortCategories(
+        state.categories.map((category) =>
+          category.id === id ? { ...category, isActive: false } : category,
+        ),
       ),
-    })),
+    }));
+  },
 
-  updateCategory: (id, name) =>
-    set((state) => {
-      const normalized = name.trim();
+  activateCategory: async (id) => {
+    await setCategoryActive(id, true);
 
-      if (!normalized) return state;
+    set((state) => ({
+      categories: sortCategories(
+        state.categories.map((category) =>
+          category.id === id ? { ...category, isActive: true } : category,
+        ),
+      ),
+    }));
+  },
 
-      const alreadyExists = state.categories.some(
-        (category) =>
-          category.id !== id &&
-          category.name.toLowerCase() === normalized.toLowerCase(),
-      );
+  updateCategory: async (id, name) => {
+    const normalized = name.trim();
 
-      if (alreadyExists) return state;
+    if (!normalized) return;
 
-      return {
-        categories: state.categories.map((category) =>
+    const alreadyExists = get().categories.some(
+      (category) =>
+        category.id !== id &&
+        category.name.toLowerCase() === normalized.toLowerCase(),
+    );
+
+    if (alreadyExists) return;
+
+    await updateCategoryName(id, normalized);
+
+    set((state) => ({
+      categories: sortCategories(
+        state.categories.map((category) =>
           category.id === id ? { ...category, name: normalized } : category,
         ),
-      };
-    }),
+      ),
+    }));
+  },
 
   getCategoryById: (id) =>
     get().categories.find((category) => category.id === id),

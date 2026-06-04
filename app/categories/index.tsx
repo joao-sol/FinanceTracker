@@ -31,6 +31,7 @@ export default function CategoriesScreen() {
   const [statusFilter, setStatusFilter] =
     useState<CategoryStatusFilter>("active");
   const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const activeCategories = categories.filter(isCategoryActive);
   const inactiveCategories = categories.filter(
@@ -52,7 +53,9 @@ export default function CategoriesScreen() {
     setError("");
   }
 
-  function handleSaveCategory() {
+  async function handleSaveCategory() {
+    if (isSaving) return;
+
     const normalizedName = name.trim();
 
     if (!normalizedName) {
@@ -75,13 +78,21 @@ export default function CategoriesScreen() {
       return;
     }
 
-    if (editingCategoryId) {
-      updateCategory(editingCategoryId, normalizedName);
-    } else {
-      addCategory(normalizedName);
-    }
+    setIsSaving(true);
 
-    resetForm();
+    try {
+      if (editingCategoryId) {
+        await updateCategory(editingCategoryId, normalizedName);
+      } else {
+        await addCategory(normalizedName);
+      }
+
+      resetForm();
+    } catch {
+      setError("Não foi possível salvar a categoria.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   function handleEditCategory(category: Category) {
@@ -89,6 +100,27 @@ export default function CategoriesScreen() {
     setName(category.name);
     setStatusFilter(isCategoryActive(category) ? "active" : "inactive");
     setError("");
+  }
+
+  async function handleDeactivateCategory(category: Category) {
+    try {
+      await deactivateCategory(category.id);
+
+      if (editingCategoryId === category.id) {
+        resetForm();
+      }
+    } catch {
+      Alert.alert("Erro", "Não foi possível inativar a categoria.");
+    }
+  }
+
+  async function handleActivateCategory(category: Category) {
+    try {
+      await activateCategory(category.id);
+      setStatusFilter("active");
+    } catch {
+      Alert.alert("Erro", "Não foi possível reativar a categoria.");
+    }
   }
 
   function confirmDeactivateCategory(category: Category) {
@@ -115,11 +147,7 @@ export default function CategoriesScreen() {
           text: "Inativar",
           style: "destructive",
           onPress: () => {
-            deactivateCategory(category.id);
-
-            if (editingCategoryId === category.id) {
-              resetForm();
-            }
+            void handleDeactivateCategory(category);
           },
         },
       ],
@@ -138,8 +166,7 @@ export default function CategoriesScreen() {
         {
           text: "Reativar",
           onPress: () => {
-            activateCategory(category.id);
-            setStatusFilter("active");
+            void handleActivateCategory(category);
           },
         },
       ],
@@ -224,6 +251,7 @@ export default function CategoriesScreen() {
 
             <Pressable
               onPress={handleSaveCategory}
+              disabled={isSaving}
               style={styles.addButton}
               accessibilityLabel={
                 isEditing ? "Salvar categoria" : "Adicionar categoria"

@@ -27,7 +27,7 @@ O aplicativo busca fornecer uma visão clara da situação financeira do usuári
 
 - [x] Gráfico de gastos
 - [x] Categorias personalizadas
-- [ ] Modo escuro
+- [x] Modo escuro
 
 ---
 
@@ -174,6 +174,7 @@ Desde o último checkpoint, foram aplicados recursos estudados nos módulos ante
 - **React Native Chart Kit:** utilizado para exibir gráficos financeiros na tela de análise, incluindo gráfico de pizza e gráfico de barras.
 - **Picker de categorias:** utilizado para permitir a seleção padronizada de categorias, tanto nos filtros quanto na tela de nova transação.
 - **SQLite local:** utilizado para persistir categorias e transações no dispositivo, mantendo os dados mesmo após fechar o aplicativo.
+- **Modo escuro alternável:** implementado com tema próprio e preferência persistida no SQLite para manter a escolha do usuário entre sessões.
 
 ### Boas práticas de componentes reutilizáveis aplicadas
 

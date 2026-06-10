@@ -1,12 +1,13 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Alert, FlatList, Pressable, Text, TextInput, View } from "react-native";
 
 import { type Category, useCategoryStore } from "@/store/useCategoryStore";
+import { useThemeStore } from "@/store/useThemeStore";
 import { useTransactionStore } from "@/store/useTransactionStore";
 
-import { styles } from "./_styles";
+import { createStyles } from "./_styles";
 
 type CategoryStatusFilter = "active" | "inactive";
 
@@ -15,6 +16,8 @@ function isCategoryActive(category: Category) {
 }
 
 export default function CategoriesScreen() {
+  const colors = useThemeStore((state) => state.colors);
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const categories = useCategoryStore((state) => state.categories);
   const addCategory = useCategoryStore((state) => state.addCategory);
   const updateCategory = useCategoryStore((state) => state.updateCategory);
@@ -213,7 +216,11 @@ export default function CategoriesScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="#334155" />
+          <FontAwesome
+            name="arrow-left"
+            size={20}
+            color={colors.textSecondary}
+          />
         </Pressable>
 
         <Text style={styles.headerTitle}>Categorias</Text>
@@ -235,7 +242,7 @@ export default function CategoriesScreen() {
                 clearError();
               }}
               placeholder="Ex: Saúde, Estudos, Mercado..."
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={colors.placeholder}
               style={styles.input}
             />
 
@@ -245,7 +252,7 @@ export default function CategoriesScreen() {
                 style={styles.cancelButton}
                 accessibilityLabel="Cancelar edição"
               >
-                <FontAwesome name="times" size={18} color="#64748B" />
+                <FontAwesome name="times" size={18} color={colors.textMuted} />
               </Pressable>
             ) : null}
 
@@ -260,7 +267,7 @@ export default function CategoriesScreen() {
               <FontAwesome
                 name={isEditing ? "check" : "plus"}
                 size={18}
-                color="#FFFFFF"
+                color={colors.primaryContrast}
               />
             </Pressable>
           </View>
@@ -341,7 +348,7 @@ export default function CategoriesScreen() {
                   <FontAwesome
                     name="tag"
                     size={16}
-                    color={isActive ? "#2F66F5" : "#64748B"}
+                    color={isActive ? colors.primary : colors.textMuted}
                   />
                 </View>
 

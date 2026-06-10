@@ -13,14 +13,16 @@ import {
 } from "react-native";
 
 import { FilterChip } from "@/components/filter";
+import { ThemeToggle } from "@/components/themeToggle";
 import { TransactionCard } from "@/components/transactionCard";
 import { useCategoryStore } from "@/store/useCategoryStore";
+import { useThemeStore } from "@/store/useThemeStore";
 import {
   type Transaction,
   useTransactionStore,
 } from "@/store/useTransactionStore";
 
-import { styles } from "./_styles";
+import { createStyles } from "./_styles";
 
 type TypeFilter = "all" | "income" | "expense";
 
@@ -81,6 +83,8 @@ function getDateFilterError(startDateInput: string, endDateInput: string) {
 }
 
 export default function HomeScreen() {
+  const colors = useThemeStore((state) => state.colors);
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const transactions = useTransactionStore((state) => state.transactions);
   const getBalance = useTransactionStore((state) => state.getBalance);
   const getTotalIncome = useTransactionStore((state) => state.getTotalIncome);
@@ -253,7 +257,11 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.balanceLabel}>Saldo Total</Text>
+        <View style={styles.headerTopRow}>
+          <Text style={styles.balanceLabel}>Saldo Total</Text>
+          <ThemeToggle />
+        </View>
+
         <Text style={styles.balanceValue}>R$ {balance.toFixed(2)}</Text>
 
         <View style={styles.summaryRow}>
@@ -278,7 +286,7 @@ export default function HomeScreen() {
           value={search}
           onChangeText={setSearch}
           placeholder="Buscar transações..."
-          placeholderTextColor="#94A3B8"
+          placeholderTextColor={colors.placeholder}
           style={styles.searchInput}
         />
 
@@ -313,7 +321,9 @@ export default function HomeScreen() {
             <Feather
               name="filter"
               size={18}
-              color={activeFilterCount > 0 ? "#FFFFFF" : "#2F66F5"}
+              color={
+                activeFilterCount > 0 ? colors.primaryContrast : colors.primary
+              }
             />
             <Text
               style={[
@@ -382,7 +392,7 @@ export default function HomeScreen() {
                 style={styles.filterModalCloseButton}
                 accessibilityLabel="Fechar filtros"
               >
-                <Feather name="x" size={20} color="#64748B" />
+                <Feather name="x" size={20} color={colors.textMuted} />
               </Pressable>
             </View>
 
@@ -418,8 +428,10 @@ export default function HomeScreen() {
               }}
               style={styles.manageCategoriesButton}
             >
-              <Feather name="plus" size={16} color="#2F66F5" />
-              <Text style={styles.manageCategoriesText}>Gerenciar categorias</Text>
+              <Feather name="plus" size={16} color={colors.primary} />
+              <Text style={styles.manageCategoriesText}>
+                Gerenciar categorias
+              </Text>
             </Pressable>
 
             <View style={styles.filterField}>
@@ -433,7 +445,7 @@ export default function HomeScreen() {
                     setFilterError("");
                   }}
                   placeholder="Início"
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={colors.placeholder}
                   keyboardType="number-pad"
                   maxLength={10}
                   style={styles.dateInput}
@@ -446,7 +458,7 @@ export default function HomeScreen() {
                     setFilterError("");
                   }}
                   placeholder="Fim"
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={colors.placeholder}
                   keyboardType="number-pad"
                   maxLength={10}
                   style={styles.dateInput}

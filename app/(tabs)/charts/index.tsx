@@ -4,9 +4,10 @@ import { Dimensions, ScrollView, Text, View } from "react-native";
 import { BarChart, PieChart } from "react-native-chart-kit";
 
 import { useCategoryStore } from "@/store/useCategoryStore";
+import { useThemeStore } from "@/store/useThemeStore";
 import { useTransactionStore } from "@/store/useTransactionStore";
 
-import { styles } from "./_styles";
+import { createStyles } from "./_styles";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -20,6 +21,8 @@ const categoryColors = [
 ];
 
 export default function ChartsScreen() {
+  const colors = useThemeStore((state) => state.colors);
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const transactions = useTransactionStore((state) => state.transactions);
   const getTotalIncome = useTransactionStore((state) => state.getTotalIncome);
   const getTotalExpense = useTransactionStore((state) => state.getTotalExpense);
@@ -59,13 +62,13 @@ export default function ChartsScreen() {
         amount,
         population: amount,
         color: categoryColors[index % categoryColors.length],
-        legendFontColor: "#0F172A",
+        legendFontColor: colors.textPrimary,
         legendFontSize: 13,
         percentage:
           totalExpense > 0 ? Math.round((amount / totalExpense) * 100) : 0,
       }))
       .sort((a, b) => b.amount - a.amount);
-  }, [transactions, categories, totalExpense]);
+  }, [transactions, categories, totalExpense, colors.textPrimary]);
 
   const monthlyChartData = {
     labels: ["Out", "Nov", "Dez", "Jan", "Fev", "Mar"],
@@ -79,21 +82,24 @@ export default function ChartsScreen() {
   const averageIncome = 5333;
   const averageExpense = 3650;
 
-  const chartConfig = {
-    backgroundGradientFrom: "#FFFFFF",
-    backgroundGradientTo: "#FFFFFF",
-    decimalPlaces: 0,
-    color: () => "#EF4444",
-    labelColor: () => "#64748B",
-    barPercentage: 0.45,
-    propsForBackgroundLines: {
-      strokeDasharray: "4",
-      stroke: "#E5E7EB",
-    },
-    propsForLabels: {
-      fontSize: 12,
-    },
-  };
+  const chartConfig = useMemo(
+    () => ({
+      backgroundGradientFrom: colors.surface,
+      backgroundGradientTo: colors.surface,
+      decimalPlaces: 0,
+      color: () => colors.expense,
+      labelColor: () => colors.textMuted,
+      barPercentage: 0.45,
+      propsForBackgroundLines: {
+        strokeDasharray: "4",
+        stroke: colors.border,
+      },
+      propsForLabels: {
+        fontSize: 12,
+      },
+    }),
+    [colors],
+  );
 
   return (
     <ScrollView
@@ -103,14 +109,22 @@ export default function ChartsScreen() {
     >
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
-          <FontAwesome name="arrow-left" size={18} color="#FFFFFF" />
+          <FontAwesome
+            name="arrow-left"
+            size={18}
+            color={colors.primaryContrast}
+          />
           <Text style={styles.headerTitle}>Análise Financeira</Text>
         </View>
 
         <View style={styles.summaryRow}>
           <View style={styles.summaryCard}>
             <View style={styles.summaryTitleRow}>
-              <FontAwesome name="line-chart" size={13} color="#FFFFFF" />
+              <FontAwesome
+                name="line-chart"
+                size={13}
+                color={colors.primaryContrast}
+              />
               <Text style={styles.summaryTitle}>Receitas</Text>
             </View>
 
@@ -119,7 +133,11 @@ export default function ChartsScreen() {
 
           <View style={styles.summaryCard}>
             <View style={styles.summaryTitleRow}>
-              <FontAwesome name="line-chart" size={13} color="#FFFFFF" />
+              <FontAwesome
+                name="line-chart"
+                size={13}
+                color={colors.primaryContrast}
+              />
               <Text style={styles.summaryTitle}>Despesas</Text>
             </View>
 
@@ -133,7 +151,7 @@ export default function ChartsScreen() {
       <View style={styles.content}>
         <View style={styles.chartCard}>
           <View style={styles.cardTitleRow}>
-            <FontAwesome name="pie-chart" size={20} color="#2F66F5" />
+            <FontAwesome name="pie-chart" size={20} color={colors.primary} />
             <Text style={styles.cardTitle}>Despesas por Categoria</Text>
           </View>
 
@@ -186,7 +204,7 @@ export default function ChartsScreen() {
 
         <View style={styles.chartCard}>
           <View style={styles.cardTitleRow}>
-            <FontAwesome name="line-chart" size={18} color="#2F66F5" />
+            <FontAwesome name="line-chart" size={18} color={colors.primary} />
             <Text style={styles.cardTitle}>Visão Mensal</Text>
           </View>
 

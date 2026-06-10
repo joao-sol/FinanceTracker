@@ -7,11 +7,13 @@ import type {
   TransactionType,
   UpdateTransactionInput,
 } from "@/types/finance";
+import type { ThemeMode } from "@/types/theme";
 
 import { createSchema } from "./schema";
 
 const DATABASE_NAME = "finance_tracker.db";
 const INITIAL_SEED_KEY = "initial_seed_done";
+const THEME_MODE_KEY = "theme_mode";
 
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
@@ -117,6 +119,26 @@ export async function initializeDatabase() {
 
   await createSchema(database);
   await seedInitialData(database);
+}
+
+export async function getThemeModePreference(): Promise<ThemeMode> {
+  const database = await getDatabase();
+  const row = await database.getFirstAsync<{ value: string }>(
+    `SELECT value FROM app_metadata WHERE key = ?`,
+    THEME_MODE_KEY,
+  );
+
+  return row?.value === "dark" ? "dark" : "light";
+}
+
+export async function setThemeModePreference(mode: ThemeMode) {
+  const database = await getDatabase();
+
+  await database.runAsync(
+    `INSERT OR REPLACE INTO app_metadata (key, value) VALUES (?, ?)`,
+    THEME_MODE_KEY,
+    mode,
+  );
 }
 
 export async function getCategories() {

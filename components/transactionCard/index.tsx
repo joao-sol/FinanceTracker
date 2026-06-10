@@ -1,7 +1,10 @@
 import { FontAwesome } from "@expo/vector-icons";
+import { useMemo } from "react";
 import { Pressable, Text, View } from "react-native";
 
-import { styles } from "./styles";
+import { useThemeStore } from "@/store/useThemeStore";
+
+import { createStyles } from "./styles";
 
 type TransactionType = "income" | "expense";
 
@@ -22,6 +25,8 @@ export function TransactionCard({
   type,
   onLongPress,
 }: TransactionCardProps) {
+  const colors = useThemeStore((state) => state.colors);
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const isIncome = type === "income";
 
   return (
@@ -40,7 +45,7 @@ export function TransactionCard({
           <FontAwesome
             name={isIncome ? "arrow-up" : "arrow-down"}
             size={16}
-            color={isIncome ? "#4CAF50" : "#F25C2A"}
+            color={isIncome ? colors.income : colors.expense}
           />
         </View>
 

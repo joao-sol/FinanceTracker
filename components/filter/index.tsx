@@ -1,6 +1,9 @@
+import { useMemo } from "react";
 import { Pressable, Text } from "react-native";
 
-import { styles } from "./styles";
+import { useThemeStore } from "@/store/useThemeStore";
+
+import { createStyles } from "./styles";
 
 type FilterProps = {
   label: string;
@@ -9,6 +12,9 @@ type FilterProps = {
 };
 
 export function FilterChip({ label, active = false, onPress }: FilterProps) {
+  const colors = useThemeStore((state) => state.colors);
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <Pressable
       onPress={onPress}

@@ -1,13 +1,14 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 
 import { useCategoryStore } from "@/store/useCategoryStore";
+import { useThemeStore } from "@/store/useThemeStore";
 import { useTransactionStore } from "@/store/useTransactionStore";
 
-import { styles } from "./_styles";
+import { createStyles } from "./_styles";
 
 type TransactionType = "expense" | "income";
 
@@ -70,6 +71,8 @@ function isCategoryActive(category: { isActive?: boolean }) {
 }
 
 export default function AddTransactionScreen() {
+  const colors = useThemeStore((state) => state.colors);
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const categories = useCategoryStore((state) => state.categories);
   const transactions = useTransactionStore((state) => state.transactions);
   const addTransaction = useTransactionStore((state) => state.addTransaction);
@@ -236,7 +239,11 @@ export default function AddTransactionScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color="#334155" />
+          <FontAwesome
+            name="arrow-left"
+            size={20}
+            color={colors.textSecondary}
+          />
         </Pressable>
 
         <Text style={styles.headerTitle}>
@@ -286,7 +293,7 @@ export default function AddTransactionScreen() {
               clearError();
             }}
             placeholder="R$ 0,00"
-            placeholderTextColor="#64748B"
+            placeholderTextColor={colors.placeholder}
             keyboardType="decimal-pad"
             style={styles.input}
           />
@@ -301,7 +308,7 @@ export default function AddTransactionScreen() {
               clearError();
             }}
             placeholder="Ex: Almoço, Salário, Uber..."
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={colors.placeholder}
             style={styles.input}
           />
         </View>
@@ -314,7 +321,7 @@ export default function AddTransactionScreen() {
               onPress={() => router.push("/categories" as never)}
               style={styles.categoryLinkButton}
             >
-              <FontAwesome name="plus" size={12} color="#2F66F5" />
+              <FontAwesome name="plus" size={12} color={colors.primary} />
               <Text style={styles.categoryLinkText}>Nova</Text>
             </Pressable>
           </View>
@@ -354,7 +361,7 @@ export default function AddTransactionScreen() {
               clearError();
             }}
             placeholder="dd/mm/aaaa"
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={colors.placeholder}
             keyboardType="number-pad"
             maxLength={10}
             style={styles.input}
@@ -368,7 +375,7 @@ export default function AddTransactionScreen() {
           disabled={isSaving}
           style={styles.saveButton}
         >
-          <FontAwesome name="check" size={16} color="#FFFFFF" />
+          <FontAwesome name="check" size={16} color={colors.primaryContrast} />
           <Text style={styles.saveButtonText}>
             {isSaving
               ? "Salvando..."

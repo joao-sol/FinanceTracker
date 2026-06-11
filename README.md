@@ -54,12 +54,12 @@ O aplicativo utilizará **persistência local com SQLite**, garantindo funcionam
 
 #### 🔹 Tabela: `categories`
 
-| Campo      | Tipo    | Descrição                                      |
-| ---------- | ------- | ---------------------------------------------- |
-| id         | INTEGER | Identificador único                            |
-| name       | TEXT    | Nome da categoria                              |
-| is_active  | INTEGER | Status da categoria: `1` ativa ou `0` inativa  |
-| created_at | TEXT    | Data de criação                                |
+| Campo      | Tipo    | Descrição                                     |
+| ---------- | ------- | --------------------------------------------- |
+| id         | INTEGER | Identificador único                           |
+| name       | TEXT    | Nome da categoria                             |
+| is_active  | INTEGER | Status da categoria: `1` ativa ou `0` inativa |
+| created_at | TEXT    | Data de criação                               |
 
 ---
 
@@ -102,7 +102,7 @@ https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=shari
 
 ### 📅 Semana 3
 
-- [x] Criação de componentes reutilizáveis (Button, Input)
+- [x] Criação de componentes reutilizáveis (Filter, TransactionCard)
 - [x] Organização do projeto
 
 ### 📅 Semana 4
@@ -138,7 +138,6 @@ https://drive.google.com/file/d/1eHNwyvy6sEdQ2hkRl96oFe_KLj5IzOIC/view?usp=shari
 ### 📅 Semana 10
 
 - [x] Implementação de gráficos
-- [ ] Estilização com NativeWind/UI Kit
 
 ### 📅 Semana 11
 

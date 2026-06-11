@@ -6,10 +6,11 @@ import {
 import { router, Tabs } from "expo-router";
 import { useMemo } from "react";
 import { Pressable, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useThemeStore } from "@/store/useThemeStore";
 
-import { createStyles } from "./_styles";
+import { createStyles } from "@/styles/tabs";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -40,6 +41,8 @@ function CustomTabBar({ iconColor, tabStyles, ...props }: CustomTabBarProps) {
 
 export default function TabLayout() {
   const colors = useThemeStore((state) => state.colors);
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 8);
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
@@ -56,9 +59,9 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          height: 70,
+          height: 62 + bottomInset,
           paddingTop: 8,
-          paddingBottom: 8,
+          paddingBottom: bottomInset,
           borderTopWidth: 1,
           borderTopColor: colors.border,
           backgroundColor: colors.surface,

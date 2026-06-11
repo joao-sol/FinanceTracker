@@ -7,7 +7,7 @@ import { type Category, useCategoryStore } from "@/store/useCategoryStore";
 import { useThemeStore } from "@/store/useThemeStore";
 import { useTransactionStore } from "@/store/useTransactionStore";
 
-import { createStyles } from "./_styles";
+import { createStyles } from "@/styles/categories";
 
 type CategoryStatusFilter = "active" | "inactive";
 

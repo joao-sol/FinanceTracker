@@ -22,7 +22,7 @@ import {
   useTransactionStore,
 } from "@/store/useTransactionStore";
 
-import { createStyles } from "./_styles";
+import { createStyles } from "@/styles/tabs";
 
 type TypeFilter = "all" | "income" | "expense";
 

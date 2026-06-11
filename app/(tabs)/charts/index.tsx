@@ -7,7 +7,7 @@ import { useCategoryStore } from "@/store/useCategoryStore";
 import { useThemeStore } from "@/store/useThemeStore";
 import { useTransactionStore } from "@/store/useTransactionStore";
 
-import { createStyles } from "./_styles";
+import { createStyles } from "@/styles/charts";
 
 const screenWidth = Dimensions.get("window").width;
 
